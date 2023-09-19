@@ -8,12 +8,52 @@ FOLDER: {folderName}
 /* FS */
 const fs = require('fs');
 const path = require('path');
-const folderPath = path.join(__dirname);
+const folderBase = path.join(__dirname);
+
+/*------- Створення папок і файлів ----- */
+const folderNames = ['services', 'routing', 'layout', 'constants', 'components'];
+const fileNames = ['services', 'routing', 'layout', 'constants', 'components'];
 
 
-/*------------------- Без вложених файлів--------------------- */ 
+/* Створення файлів */
+function createFile(folderPath, nameFile) {
+    const filePath = path.join(folderPath, `${nameFile}.txt`);
+    fs.writeFile(filePath, '', (err) => {
+        if (err) {
+            console.error(`Помилка при створенні файлу  у папці ${nameFile}: ${err}`);
+        } else {
+            console.log(`Успішно створено файл  у папці ${nameFile}`);
+        }
+    });
+};
+
+fileNames.forEach(nameFile => {
+    createFile(folderBase, nameFile);
+});
+
+
+
+//створення папок та файлів в них
+
+folderNames.forEach(folderName => {
+    const folderPath = path.join(folderBase, folderName);
+
+    // Спочатку створимо папку
+    fs.mkdir(folderPath, (err) => {
+        if (err) {
+            console.error(`Помилка при створенні папки ${folderName}: ${err}`);
+            return;
+        }
+        console.log(`Створено папку ${folderName}`);
+        // створення файлу у цій папці
+        createFile(folderPath, folderName);
+    });
+});
+
+
+/*------------------- Без вложених файлів--------------------- */
 console.log(' ---- Без вложених файлів ---- ');
-fs.readdir(folderPath,
+fs.readdir(folderBase,
     {withFileTypes: true},
     (err, files) => {
         if (err)
@@ -27,7 +67,7 @@ fs.readdir(folderPath,
                 }
             });
         }
-    })
+    });
 
 /*---------------------  З вложеними файлами, fs.readdir без опцій, рекурсія---------------------- */
 
@@ -36,7 +76,7 @@ function checkFile(fileName) {
         console.log('FILE:', fileName);
     } else {
         console.log('FOLDER:', fileName);
-        fs.readdir(path.join(folderPath, fileName), (err, files) => {
+        fs.readdir(path.join(folderBase, fileName), (err, files) => {
             if (err) {
                 console.error('Помилка зчитування папки: ' + err);
                 return;
@@ -49,7 +89,7 @@ function checkFile(fileName) {
     }
 }
 
-fs.readdir(folderPath, (err, files) => {
+fs.readdir(folderBase, (err, files) => {
     if (err) {
         console.error('Помилка зчитування папки: ' + err);
         return;
