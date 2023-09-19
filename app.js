@@ -10,12 +10,33 @@ const fs = require('fs');
 const path = require('path');
 const folderPath = path.join(__dirname);
 
+
+/*------------------- Без вложених файлів--------------------- */ 
+console.log(' ---- Без вложених файлів ---- ');
+fs.readdir(folderPath,
+    {withFileTypes: true},
+    (err, files) => {
+        if (err)
+            console.log(err);
+        else {
+            files.forEach(file => {
+                if (file.isDirectory()) {
+                    console.log('FOLDER:', file.name);
+                } else {
+                    console.log('FILE:', file.name);
+                }
+            });
+        }
+    })
+
+/*---------------------  З вложеними файлами, fs.readdir без опцій, рекурсія---------------------- */
+
 function checkFile(fileName) {
     if (fileName.includes('.')) {
         console.log('FILE:', fileName);
     } else {
         console.log('FOLDER:', fileName);
-        fs.readdir(path.join(__dirname, fileName), (err, files) => {
+        fs.readdir(path.join(folderPath, fileName), (err, files) => {
             if (err) {
                 console.error('Помилка зчитування папки: ' + err);
                 return;
@@ -33,13 +54,11 @@ fs.readdir(folderPath, (err, files) => {
         console.error('Помилка зчитування папки: ' + err);
         return;
     }
-
+    console.log(' ---- З вложеними файлами ---- ');
     files.forEach((file) => {
         checkFile(file);
     });
 });
-
-
 
 
 
