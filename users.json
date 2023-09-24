@@ -7,7 +7,7 @@
   },
   {
     "id": 2,
-    "name": "Марія",
+    "name": "Марія25",
     "email": "maria@example.com",
     "age": 30
   },
@@ -25,9 +25,9 @@
   },
   {
     "id": 5,
-    "name": "Андрій",
-    "email": "andriy@example.com",
-    "age": 29
+    "name": "Марія85",
+    "email": "maria@example.com",
+    "age": 30
   },
   {
     "id": 6,
@@ -58,5 +58,11 @@
     "name": "oksi",
     "email": "ivan52@example.com",
     "age": 2
+  },
+  {
+    "id": 11,
+    "name": "Марія85",
+    "email": "maria@example.com",
+    "age": 30
   }
 ]

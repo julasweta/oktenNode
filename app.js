@@ -10,7 +10,7 @@ HW2 – закінчити з CRUD операціями.
 */
 const express = require('express');
 const app = express();
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 
 const filePath = path.join(__dirname, `users.json`);
@@ -21,24 +21,20 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 // Читаємо вміст файлу users,json
-fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-        console.error(`Помилка читання файлу: ${err}`);
-        return;
-    }
 
-    // Парсимо JSON дані
+const readFile = async () => {
     try {
+        const data = await fs.readFile(filePath, 'utf8');
         const usersPars = JSON.parse(data);
-        // console.log('Дані з users.json:', usersPars);
         users = usersPars;
-    } catch (parseError) {
-        console.error(`Помилка парсингу JSON: ${parseError}`);
+    } catch (error) {
+        console.error('Помилка зчитування файлу:', error);
     }
-});
+};
+
 
 //функція, що записує оновлені дані в users.json
-function changeUsersJson() {
+async function changeUsersJson() {
     // Конвертуємо оновлені дані у JSON рядок
     const updatedUsersJSON = JSON.stringify(users, null, 2);
 
@@ -69,24 +65,30 @@ function validation(req) {
 }
 
 //перевірка на наявність юзера
-function isUser(id) {
-
-    newArr = users.filter(user => user.id === id);
-    if (newArr.length > 0) {
-        return true;
-    } else {
-        errors.push({errorUser: 'Юзера не знайдено'});
-        return false;
+async function isUser(id) {
+    await readFile();
+    if (users.length > 0) {
+        newArr = users.filter(user => {
+            user.id === +id;
+        });
+        if (newArr.length > 0) {
+            return true;
+        } else {
+            errors.push({errorUser: 'Юзера не знайдено'});
+            return false;
+        }
     }
 }
 
-app.get('/users', (req, res) => {
+app.get('/users', async (req, res) => {
+    await readFile();
     res.json({
         data: users,
     });
 });
 
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', async (req, res) => {
+    await readFile();
     const {id} = req.params;
     if (isUser(id)) {
         res.json({
@@ -99,12 +101,22 @@ app.get('/users/:id', (req, res) => {
     }
 });
 
-app.post('/users', (req, res) => {
+
+
+app.post('/users', async (req, res) => {
     errors = [];
     if (validation(req)) {
-        const userData = req.body;
-
+        await readFile();
+        const data = req.body;
+        const newId = users.length + 1;
+        const userData = {
+            id: newId,
+            name: data.name,
+            email: data.email,
+            age: data.age
+        };
         if (userData) {
+            await readFile();
             users.push(userData);
             changeUsersJson();
 
@@ -139,16 +151,22 @@ app.delete('/users/:id', (req, res) => {
     }
 });
 
-app.put('/users/:id', (req, res) => {
+app.put('/users/:id', async (req, res) => {
+
     errors = [];
     const {id} = req.params;
     if (validation(req) && isUser(+id)) {
-
+        await readFile();
         const userChange = req.body;
 
         const newarr = users.map(user => {
             if (user.id == +id) {
-                return userChange;
+                return {
+                    id: user.id,
+                    name: userChange.name ? userChange.name : user.name,
+                    email: userChange.email ? userChange.email : user.email,
+                    age: userChange.age ? userChange.age : user.age
+                };
             }
             return user;
         });
@@ -159,7 +177,6 @@ app.put('/users/:id', (req, res) => {
             message: "User updated",
         });
     } else {
-
         res.status(400).json({
             errorName: errors[0],
             errorAge: errors[1],
