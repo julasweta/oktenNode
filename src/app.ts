@@ -1,44 +1,31 @@
-import express from "express";
+/* eslint-disable no-console */
+/* eslint-disable prettier/prettier */
+import express, {NextFunction, Request, Response} from "express";
 import mongoose from "mongoose";
+
 import {configs} from "./configs/config";
-import {User} from "./models/User.model";
+import UserRouter from "./routes/user.router";
 
 const app = express();
-app.use(express.json()); // Виправлено: виклик функції express.json()
+app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-const ObjectId = mongoose.Types.ObjectId;
+//перевірка на наявність юзера
+app.route("/users")
+  .get(UserRouter)
+  .post(UserRouter)
 
+app.route("/users/:id")
+  .get(UserRouter)
+  .delete(UserRouter)
 
-
-
-app.get("/users", async (req: any, res: any) => {
-    try {
-        const users = await User.find();
-        return res.json(users);
-    } catch (error) {
-        res.status(500).json({error: "Помилка при отриманні користувачів"});
-    }
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  res.json(error.message);
 });
-
-
-app.post("/users", async (req: any, res: any) => {
-    try {
-        const createdUser = await User.create({
-            name: req.body.name,
-            email: req.body.email,
-            age: req.body.age,
-        });
-        res.status(201).json(createdUser);
-    } catch (e) {
-        res.status(400).json(e.message);
-    }
-});
-//const users = fsServices.readerFile();
 
 const PORT = 5001;
 
 app.listen(PORT, async () => {
-    await mongoose.connect(configs.DB_URI);
-    console.log(`Server has successfully started on PORT ${PORT}`);
+  await mongoose.connect(configs.DB_URI);
+  console.log(`Server has successfully started on PORT ${PORT}`);
 });

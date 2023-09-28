@@ -1,5 +1,6 @@
 import { Document } from "mongoose";
-import {EGenders} from "../enums/gender,enum";
+
+import { EGenders } from "../enums/gender,enum";
 
 //наслідування інтерфейсу  від Document використовуються для опису моделей MongoDB
 export interface IUser extends Document {
