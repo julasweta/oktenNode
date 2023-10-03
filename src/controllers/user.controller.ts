@@ -1,24 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 
-import { User } from "../models/User.model";
+import { userService } from "../services/user.service";
 import { IUser } from "../types/user.type";
-import { UserValidator } from "../validators/user.validator";
 
-async function isUser(id: any) {
-  const errors = [];
-  const users = await User.find();
-  if (users.length > 0) {
-    const newArr = users.filter((user: any) => {
-      user.id === +id;
-    });
-    if (newArr.length > 0) {
-      return true;
-    } else {
-      errors.push({ errorUser: "Юзера не знайдено" });
-      return false;
-    }
-  }
-}
+// Controller  тільки вказує хто буде обробляти запит, а сам запит передає Services
+// також тут передаються дані для запиту і відправляється тут response
 
 class UserController {
   public async getAll(
@@ -27,7 +13,7 @@ class UserController {
     next: NextFunction,
   ): Promise<Response<IUser[]>> {
     try {
-      const users = await User.find();
+      const users = await userService.getAll();
       return res.json(users);
     } catch (error) {
       next(error);
@@ -40,11 +26,7 @@ class UserController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { error, value } = UserValidator.create.validate(req.body);
-      if (error) {
-        throw new Error(error.message);
-      }
-      const createdUser = await User.create(value);
+      const createdUser = await userService.createUser(req.body);
       res.status(201).json(createdUser);
     } catch (e) {
       next(e);
@@ -56,9 +38,9 @@ class UserController {
     res: Response,
     next: NextFunction,
   ): Promise<Response<IUser[]>> {
-    const { id } = req.params;
     try {
-      const user = await User.findById(id);
+      const { id } = req.params;
+      const user = await userService.getId(id);
       return res.json(user);
     } catch (error) {
       next(error);
@@ -68,15 +50,13 @@ class UserController {
   public async deleteId(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
-      if (isUser(+id)) {
-        const { deletedCount } = await User.deleteOne({ _id: id });
-        if (deletedCount != 0) {
-          res.status(201).json({
-            message: "User deleted",
-          });
-        } else {
-          throw new Error("user not found");
-        }
+      const { deletedCount } = await userService.deleteOne(id);
+      if (deletedCount != 0) {
+        res.status(201).json({
+          message: "User deleted",
+        });
+      } else {
+        throw new Error("user not found");
       }
     } catch (error) {
       next(error);
