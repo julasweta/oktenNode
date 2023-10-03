@@ -1,23 +1,16 @@
 /* eslint-disable no-console */
 /* eslint-disable prettier/prettier */
-import express, {NextFunction, Request, Response} from "express";
+import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 
-import {configs} from "./configs/config";
-import UserRouter from "./routes/user.router";
+import { configs } from "./configs/config"; //для .env
+import { UserRouter } from "./routes/user.router";
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
-//перевірка на наявність юзера
-app.route("/users")
-  .get(UserRouter)
-  .post(UserRouter)
-
-app.route("/users/:id")
-  .get(UserRouter)
-  .delete(UserRouter)
+app.use("/users", UserRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.json(error.message);
