@@ -42,7 +42,7 @@ class CommonMiddleware {
             try {
                 const { error, value } = validator.validate(req.body);
                 if (error) {
-                    throw new api_error_1.ApiError(error.message, 400);
+                    throw new api_error_1.ApiError(error.message, 409);
                 }
                 req.body = value;
                 next();

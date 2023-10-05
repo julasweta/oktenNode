@@ -8,9 +8,7 @@ class UserRepository {
         return users;
     }
     async createUser(data) {
-        const newUserDocument = await User_model_1.User.create(data);
-        const newUser = newUserDocument.toObject();
-        return newUser;
+        return await User_model_1.User.create(data);
     }
     async getId(id) {
         return await User_model_1.User.findById(id);

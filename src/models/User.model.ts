@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
 
 import { EGenders } from "../enums/gender,enum";
+import { IUser } from "../types/user.type";
 
 // Схема користувача
 const userSchema = new Schema(
@@ -37,8 +38,9 @@ const userSchema = new Schema(
     /*  Це поле зазвичай використовується для контролю версій документів у колекції.
         Якщо вам не потрібен контроль версій, ви можете вимкнути це поле. */
     versionKey: false,
+    strict: false,
   },
 );
 
 // Модель користувача
-export const User = model("user", userSchema);
+export const User = model<IUser>("user", userSchema);

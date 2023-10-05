@@ -10,10 +10,8 @@ class UserRepository {
     return users as IUser[];
   }
 
-  public async createUser(data: IUser): Promise<IUser> {
-    const newUserDocument = await User.create(data);
-    const newUser: IUser = newUserDocument.toObject(); // Приводимо документ до типу IUser
-    return newUser;
+  public async createUser(data: Partial<IUser>): Promise<IUser> {
+    return await User.create(data);
   }
 
   public async getId(id: string): Promise<IUser> {

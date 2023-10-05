@@ -26,5 +26,10 @@ export class UserValidator {
     age: this.age,
     genders: this.genders,
   });
+
+  static login = joi.object({
+    email: this.email.required(),
+    password: this.password.required(),
+  });
 }
 //npx eslintr --write .

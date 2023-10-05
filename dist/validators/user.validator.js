@@ -29,3 +29,7 @@ UserValidator.update = joi_1.default.object({
     age: _a.age,
     genders: _a.genders,
 });
+UserValidator.login = joi_1.default.object({
+    email: _a.email.required(),
+    password: _a.password.required(),
+});
