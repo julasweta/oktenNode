@@ -1,10 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userController = void 0;
+const email_action_enum_1 = require("../enums/email.action.enum");
+const email_services_1 = require("../services/email.services");
 const user_service_1 = require("../services/user.service");
 class UserController {
     async getAll(req, res, next) {
         try {
+            await email_services_1.emailService.sendMail("julasweta@ukr.net", email_action_enum_1.EEmailAction.REGISTER, {
+                name: "stugarka",
+            });
             const users = await user_service_1.userService.getAll();
             return res.json(users);
         }
