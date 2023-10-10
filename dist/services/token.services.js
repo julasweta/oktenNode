@@ -33,11 +33,19 @@ class TokenService {
             expiresIn: "10s",
         });
         const refreshToken = jwt.sign(payload, config_1.configs.JWT_REFRESH_SECRET, {
-            expiresIn: "20s",
+            expiresIn: "30s",
         });
         return {
             accessToken,
             refreshToken,
+        };
+    }
+    generateActivateToken(payload) {
+        const accessToken = jwt.sign(payload, config_1.configs.JWT_ACTIVATE_SECRET, {
+            expiresIn: "1d",
+        });
+        return {
+            accessToken,
         };
     }
     checkToken(token, type) {
@@ -49,6 +57,9 @@ class TokenService {
                     break;
                 case "refresh":
                     secret = config_1.configs.JWT_REFRESH_SECRET;
+                    break;
+                case "activate":
+                    secret = config_1.configs.JWT_ACTIVATE_SECRET;
                     break;
             }
             return jwt.verify(token, secret);

@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserValidator = void 0;
 const joi_1 = __importDefault(require("joi"));
 const regex_constant_1 = require("../constants/regex.constant");
-const gender_enum_1 = require("../enums/gender,enum");
+const gender_enum_1 = require("../enums/gender.enum");
 class UserValidator {
 }
 exports.UserValidator = UserValidator;

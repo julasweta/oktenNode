@@ -10,6 +10,11 @@ class UserRepository {
     async createUser(data) {
         return await User_model_1.User.create(data);
     }
+    async updateOneById(userId, dto) {
+        return await User_model_1.User.findByIdAndUpdate(userId, dto, {
+            returnDocument: "after",
+        });
+    }
     async getId(id) {
         return await User_model_1.User.findById(id);
     }

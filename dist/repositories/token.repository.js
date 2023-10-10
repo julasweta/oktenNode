@@ -23,5 +23,8 @@ class TokenRepository {
     async deleteOne(params) {
         await Token_models_1.Token.deleteOne(params);
     }
+    async deleteAll(params) {
+        await Token_models_1.Token.deleteMany(params);
+    }
 }
 exports.tokenRepository = new TokenRepository();

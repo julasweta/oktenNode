@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-import { EGenders } from "../enums/gender,enum";
+import { EGenders, EUserStatus } from "../enums/gender.enum";
 
 //наслідування інтерфейсу  від Document використовуються для опису моделей MongoDB
 export interface IUser extends Document {
@@ -9,6 +9,7 @@ export interface IUser extends Document {
   genders?: EGenders;
   email: string;
   password: string;
+  status: EUserStatus;
 }
 
 export type IUserCredentials = Pick<IUser, "email" | "password">;

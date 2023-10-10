@@ -2,12 +2,13 @@
 import { Router } from "express";
 
 import { userController } from "../controllers/user.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 import { commonMiddleware } from "../middlewares/common.middleware";
 import { UserValidator } from "../validators/user.validator";
 
 const UserRouter = Router();
 
-UserRouter.get("/", userController.getAll);
+UserRouter.get("/",authMiddleware.checkAccessToken, userController.getAll);
 UserRouter.post(
   "/",
   commonMiddleware.isEmail(),

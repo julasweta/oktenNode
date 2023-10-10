@@ -1,7 +1,7 @@
 import joi from "joi";
 
 import { regexConstant } from "../constants/regex.constant";
-import { EGenders } from "../enums/gender,enum";
+import { EGenders } from "../enums/gender.enum";
 
 export class UserValidator {
   //оголошуємо змінні які повторюються в коді нижче для подальшого використання

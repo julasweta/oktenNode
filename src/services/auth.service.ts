@@ -1,18 +1,49 @@
+import { EEmailAction } from "../enums/email.action.enum";
+import { EUserStatus } from "../enums/gender.enum";
 import { ApiError } from "../errors/api.error";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
-import { ITokenPayload, ITokensPair } from "../types/token.type";
+import {
+  ITokenActivate,
+  ITokenPayload,
+  ITokensPair,
+} from "../types/token.type";
 import { IUser } from "../types/user.type";
+import { emailService } from "./email.services";
 import { passwordService } from "./password.service";
 import { tokenService } from "./token.services";
 
 //services передає привіт репозиторію і дані, які прийшли з controllers
 class AuthService {
-  public async register(data: IUser): Promise<IUser> {
+  public async register(data: IUser): Promise<ITokenActivate> {
     const hashedPassword = await passwordService.hash(data.password);
-    return await userRepository.createUser({
+    const { accessToken } = tokenService.generateActivateToken({
+      _userId: data.id,
+      name: data.name,
+    });
+    //відправляємо лист для підтвердження активації
+    await emailService.sendMail(data.email, EEmailAction.REGISTER, {
+      name: data.name,
+      activаteToken: accessToken,
+    });
+
+    await userRepository.createUser({
       ...data,
       password: hashedPassword,
+      status: EUserStatus.inactive,
+    });
+    return { accessToken };
+  }
+
+  public async activate(data: IUser): Promise<IUser> {
+    //відправляємо лист для підтвердження активації
+    await emailService.sendMail(data.email, EEmailAction.REGISTER, {
+      name: data.name,
+    });
+
+    return await userRepository.updateOneById(data._id, {
+      ...data,
+      status: EUserStatus.active,
     });
   }
 
@@ -29,6 +60,7 @@ class AuthService {
     if (!checkPassword) {
       throw new ApiError("Invalid password", 401);
     }
+
     //створюємо токени
     try {
       const tokens = tokenService.generateTokenPair({
@@ -57,6 +89,36 @@ class AuthService {
       ]);
 
       return tokensPair;
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async logout(
+    payload: ITokenPayload,
+    accessToken: string,
+  ): Promise<any> {
+    try {
+      //для видалення всіх сесій юзера  - deleteAll
+      return await tokenRepository.deleteAll({ _userId: payload._userId });
+      //для видалення даної сесії deleteOne
+      if (accessToken)
+        return await tokenRepository.deleteOne({ _userId: payload._userId });
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async forgot(user: IUser): Promise<any> {
+    try {
+      const tokens = tokenService.generateTokenPair({
+        _userId: user._id,
+      });
+      const access = tokens.accessToken;
+      console.log(access);
+      emailService.sendMail(user.email, EEmailAction.FORGOT_PASSWORD, {
+        name: "forgot you",
+      });
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }

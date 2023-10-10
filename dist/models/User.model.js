@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const mongoose_1 = require("mongoose");
-const gender_enum_1 = require("../enums/gender,enum");
+const gender_enum_1 = require("../enums/gender.enum");
 const userSchema = new mongoose_1.Schema({
     name: {
         type: String,
@@ -26,6 +26,12 @@ const userSchema = new mongoose_1.Schema({
     password: {
         type: String,
         required: true,
+    },
+    status: {
+        type: String,
+        enum: gender_enum_1.EUserStatus,
+        required: true,
+        default: gender_enum_1.EUserStatus.inactive,
     },
 }, {
     timestamps: true,

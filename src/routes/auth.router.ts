@@ -12,11 +12,35 @@ AuthRouter.post(
   commonMiddleware.isEmail(),
   authController.register,
 );
-AuthRouter.post("/login", authController.login);
+
+AuthRouter.post(
+  "/activate",
+  authMiddleware.checkAtivateToken,
+  authController.activate,
+);
+
+
+AuthRouter.post(
+  "/login",
+  authMiddleware.checkStatus('email'),
+  authController.login);
+
 AuthRouter.post(
   "/refresh",
   authMiddleware.checkRefreshToken,
   authController.refresh,
+);
+
+AuthRouter.post(
+  "/logout",
+  authMiddleware.checkAccessToken,
+  authController.logout,
+);
+
+AuthRouter.post(
+  "/forgot",
+  authMiddleware.checkUser('email'),
+  authController.forgot,
 );
 
 export { AuthRouter };
