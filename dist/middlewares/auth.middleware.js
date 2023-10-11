@@ -33,11 +33,34 @@ class AuthMiddleware {
                 throw new api_error_1.ApiError("No Token!", 401);
             }
             const payload = token_services_1.tokenService.checkToken(accessToken, "activate");
-            const entity = await token_repository_1.tokenRepository.findOne({ accessToken });
+            const entity = await token_repository_1.tokenRepository.findOneActionToken({
+                token: accessToken,
+            });
             if (!entity) {
                 throw new api_error_1.ApiError("Token not valid!", 401);
             }
-            req.res.locals.tokenPayload = payload;
+            req.res.locals.payload = payload;
+            req.res.locals.accessToken = accessToken;
+            next();
+        }
+        catch (e) {
+            next(e);
+        }
+    }
+    async checkForgotToken(req, res, next) {
+        try {
+            const accessToken = req.params.token;
+            if (!accessToken) {
+                throw new api_error_1.ApiError("No Token!", 401);
+            }
+            const payload = token_services_1.tokenService.checkToken(accessToken, "forgot");
+            const entity = await token_repository_1.tokenRepository.findOneActionToken({
+                token: accessToken,
+            });
+            if (!entity) {
+                throw new api_error_1.ApiError("TokenForgot not valid!", 401);
+            }
+            req.res.locals.payload = payload;
             req.res.locals.accessToken = accessToken;
             next();
         }

@@ -8,7 +8,7 @@ import { UserValidator } from "../validators/user.validator";
 
 const UserRouter = Router();
 
-UserRouter.get("/",authMiddleware.checkAccessToken, userController.getAll);
+UserRouter.get("/", authMiddleware.checkAccessToken, userController.getAll);
 UserRouter.post(
   "/",
   commonMiddleware.isEmail(),

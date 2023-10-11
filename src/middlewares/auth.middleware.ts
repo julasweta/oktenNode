@@ -44,14 +44,44 @@ class AuthMiddleware {
         throw new ApiError("No Token!", 401);
       }
       const payload = tokenService.checkToken(accessToken, "activate");
-
-      const entity = await tokenRepository.findOne({ accessToken });
+      const entity = await tokenRepository.findOneActionToken({
+        token: accessToken,
+      });
 
       if (!entity) {
         throw new ApiError("Token not valid!", 401);
       }
+      req.res.locals.payload = payload;
+      req.res.locals.accessToken = accessToken;
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
 
-      req.res.locals.tokenPayload = payload;
+  //
+  //const accessTokenWithParams = req.params.token;
+  // console.log(accessTokenWithParams);
+
+  public async checkForgotToken(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const accessToken = req.params.token;
+      if (!accessToken) {
+        throw new ApiError("No Token!", 401);
+      }
+      const payload = tokenService.checkToken(accessToken, "forgot");
+      const entity = await tokenRepository.findOneActionToken({
+        token: accessToken,
+      });
+
+      if (!entity) {
+        throw new ApiError("TokenForgot not valid!", 401);
+      }
+      req.res.locals.payload = payload;
       req.res.locals.accessToken = accessToken;
       next();
     } catch (e) {
@@ -98,7 +128,6 @@ class AuthMiddleware {
         }
 
         req.res.locals.user = user;
-
         next();
       } catch (e) {
         next(e);

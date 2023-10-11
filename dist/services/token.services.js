@@ -40,8 +40,8 @@ class TokenService {
             refreshToken,
         };
     }
-    generateActivateToken(payload) {
-        const accessToken = jwt.sign(payload, config_1.configs.JWT_ACTIVATE_SECRET, {
+    generateActivateToken(payload, type) {
+        const accessToken = jwt.sign(payload, type, {
             expiresIn: "1d",
         });
         return {
@@ -60,6 +60,9 @@ class TokenService {
                     break;
                 case "activate":
                     secret = config_1.configs.JWT_ACTIVATE_SECRET;
+                    break;
+                case "forgot":
+                    secret = config_1.configs.JWT_FORGOT_SECRET;
                     break;
             }
             return jwt.verify(token, secret);

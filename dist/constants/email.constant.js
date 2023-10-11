@@ -11,4 +11,8 @@ exports.templates = {
         templateName: "forgot-password",
         subject: "Do not worry, we control your password",
     },
+    [email_action_enum_1.EEmailAction.ACTIVATE]: {
+        templateName: "activate",
+        subject: "Статус - активовано",
+    },
 };

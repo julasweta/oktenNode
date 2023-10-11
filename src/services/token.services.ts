@@ -23,8 +23,11 @@ class TokenService {
     };
   }
 
-  public generateActivateToken(payload: ITokenPayload): ITokenActivate {
-    const accessToken = jwt.sign(payload, configs.JWT_ACTIVATE_SECRET, {
+  public generateActivateToken(
+    payload: ITokenPayload,
+    type: string,
+  ): ITokenActivate {
+    const accessToken = jwt.sign(payload, type, {
       expiresIn: "1d",
     });
     return {
@@ -34,7 +37,7 @@ class TokenService {
 
   public checkToken(
     token: string,
-    type: "access" | "refresh" | "activate",
+    type: "access" | "refresh" | "activate" | "forgot",
   ): ITokenPayload {
     try {
       let secret: string;
@@ -47,6 +50,9 @@ class TokenService {
           break;
         case "activate":
           secret = configs.JWT_ACTIVATE_SECRET;
+          break;
+        case "forgot":
+          secret = configs.JWT_FORGOT_SECRET;
           break;
       }
 

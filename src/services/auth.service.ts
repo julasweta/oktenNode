@@ -1,13 +1,10 @@
+import { configs } from "../configs/config";
 import { EEmailAction } from "../enums/email.action.enum";
-import { EUserStatus } from "../enums/gender.enum";
+import { EActionTokenType, EUserStatus } from "../enums/gender.enum";
 import { ApiError } from "../errors/api.error";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
-import {
-  ITokenActivate,
-  ITokenPayload,
-  ITokensPair,
-} from "../types/token.type";
+import { IActionToken, ITokenPayload, ITokensPair } from "../types/token.type";
 import { IUser } from "../types/user.type";
 import { emailService } from "./email.services";
 import { passwordService } from "./password.service";
@@ -15,36 +12,49 @@ import { tokenService } from "./token.services";
 
 //services передає привіт репозиторію і дані, які прийшли з controllers
 class AuthService {
-  public async register(data: IUser): Promise<ITokenActivate> {
+  public async register(data: IUser): Promise<IActionToken> {
     const hashedPassword = await passwordService.hash(data.password);
-    const { accessToken } = tokenService.generateActivateToken({
-      _userId: data.id,
-      name: data.name,
-    });
-    //відправляємо лист для підтвердження активації
-    await emailService.sendMail(data.email, EEmailAction.REGISTER, {
-      name: data.name,
-      activаteToken: accessToken,
-    });
-
-    await userRepository.createUser({
+    const user = await userRepository.createUser({
       ...data,
       password: hashedPassword,
       status: EUserStatus.inactive,
     });
-    return { accessToken };
+    const { accessToken } = tokenService.generateActivateToken(
+      {
+        _userId: user._id,
+      },
+      configs.JWT_ACTIVATE_SECRET,
+    );
+
+    //відправляємо лист для підтвердження активації
+    /*  await emailService.sendMail(data.email, EEmailAction.REGISTER, {
+      name: data.name,
+      activаteToken: accessToken,
+    }); */
+
+    return await tokenRepository.createActivateToken({
+      token: accessToken,
+      type: EActionTokenType.activate,
+      _userId: user._id,
+    });
   }
 
-  public async activate(data: IUser): Promise<IUser> {
-    //відправляємо лист для підтвердження активації
-    await emailService.sendMail(data.email, EEmailAction.REGISTER, {
-      name: data.name,
-    });
-
-    return await userRepository.updateOneById(data._id, {
-      ...data,
-      status: EUserStatus.active,
-    });
+  public async activate(payload: IActionToken): Promise<IUser> {
+    try {
+      const user = await userRepository.getOneByParams({
+        _id: payload._userId,
+      });
+      //відправляємо лист для підтвердження активації
+      await emailService.sendMail(user.email, EEmailAction.ACTIVATE, {
+        name: user.name,
+      });
+      const user2 = await userRepository.updateOneById(user.id, {
+        status: EUserStatus.active,
+      });
+      return user2;
+    } catch (e) {
+      throw new ApiError("ActivateService", 401);
+    }
   }
 
   public async login(data: any): Promise<any> {
@@ -108,17 +118,53 @@ class AuthService {
       throw new ApiError(e.message, e.status);
     }
   }
-
+  //1 - отримуємо емейл, перевіряємо, генеруємо токен, відправляємо листа
   public async forgot(user: IUser): Promise<any> {
     try {
-      const tokens = tokenService.generateTokenPair({
+      //1.генеруємо фктивац токен
+      const { accessToken } = tokenService.generateActivateToken(
+        {
+          _userId: user._id,
+        },
+        configs.JWT_FORGOT_SECRET,
+      );
+      //2.записуємо цей токен
+      const tokenForgot = await tokenRepository.createActivateToken({
+        token: accessToken,
+        type: EActionTokenType.forgotPassword,
         _userId: user._id,
       });
-      const access = tokens.accessToken;
-      console.log(access);
+      //відправляємо лист з токеном
       emailService.sendMail(user.email, EEmailAction.FORGOT_PASSWORD, {
-        name: "forgot you",
+        accessToken,
       });
+      return tokenForgot;
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+  //
+  public async setForgotPassword(
+    actionToken: string,
+    newPassword: string,
+    payload: any,
+  ): Promise<any> {
+    try {
+      const entity = await tokenRepository.findOneActionToken({
+        token: actionToken,
+      });
+      if (!entity) {
+        throw new ApiError("Not valid token", 400);
+      }
+      const newHashedPassword = await passwordService.hash(newPassword);
+
+      await Promise.all([
+        userRepository.updateOneById(payload._userId, {
+          password: newHashedPassword,
+        }),
+        tokenRepository.deleteOne({ token: actionToken }),
+      ]);
+      return "password update";
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }

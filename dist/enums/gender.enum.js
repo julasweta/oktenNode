@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EUserStatus = exports.EGenders = void 0;
+exports.EActionTokenType = exports.EUserStatus = exports.EGenders = void 0;
 var EGenders;
 (function (EGenders) {
     EGenders["Male"] = "male";
@@ -13,3 +13,8 @@ var EUserStatus;
     EUserStatus["inactive"] = "inactive";
     EUserStatus["deleted"] = "deleted";
 })(EUserStatus || (exports.EUserStatus = EUserStatus = {}));
+var EActionTokenType;
+(function (EActionTokenType) {
+    EActionTokenType["activate"] = "activate";
+    EActionTokenType["forgotPassword"] = "forgot";
+})(EActionTokenType || (exports.EActionTokenType = EActionTokenType = {}));

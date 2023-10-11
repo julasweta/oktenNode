@@ -19,11 +19,11 @@ AuthRouter.post(
   authController.activate,
 );
 
-
 AuthRouter.post(
   "/login",
-  authMiddleware.checkStatus('email'),
-  authController.login);
+  authMiddleware.checkStatus("email"),
+  authController.login,
+);
 
 AuthRouter.post(
   "/refresh",
@@ -39,8 +39,14 @@ AuthRouter.post(
 
 AuthRouter.post(
   "/forgot",
-  authMiddleware.checkUser('email'),
+  authMiddleware.checkUser("email"),
   authController.forgot,
+);
+
+AuthRouter.put(
+  "/forgot/:token",
+  authMiddleware.checkForgotToken,
+  authController.setForgotPassword,
 );
 
 export { AuthRouter };

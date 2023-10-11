@@ -1,8 +1,9 @@
 import { FilterQuery } from "mongoose";
 
 import { ApiError } from "../errors/api.error";
+import { ActionToken } from "../models/ActionToken.models";
 import { Token } from "../models/Token.models";
-import { IToken } from "../types/token.type";
+import { IActionToken, IToken } from "../types/token.type";
 
 //репозиторії використовуємо для відправлення запитів в базу данних
 class TokenRepository {
@@ -14,9 +15,27 @@ class TokenRepository {
     }
   }
 
+  public async createActivateToken(data: IActionToken): Promise<IActionToken> {
+    try {
+      return await ActionToken.create(data);
+    } catch (e) {
+      throw new ApiError(e.message, 401);
+    }
+  }
+
   public async findOne(params: FilterQuery<IToken>): Promise<IToken> {
     try {
       return await Token.findOne(params);
+    } catch (e) {
+      throw new ApiError("error findOne", e.status);
+    }
+  }
+
+  public async findOneActionToken(
+    params: FilterQuery<IToken>,
+  ): Promise<IToken> {
+    try {
+      return await ActionToken.findOne(params);
     } catch (e) {
       throw new ApiError("error findOne", e.status);
     }

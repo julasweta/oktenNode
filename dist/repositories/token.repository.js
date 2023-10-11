@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tokenRepository = void 0;
 const api_error_1 = require("../errors/api.error");
+const ActionToken_models_1 = require("../models/ActionToken.models");
 const Token_models_1 = require("../models/Token.models");
 class TokenRepository {
     async create(tokens) {
@@ -12,9 +13,25 @@ class TokenRepository {
             throw new api_error_1.ApiError(e.message, 401);
         }
     }
+    async createActivateToken(data) {
+        try {
+            return await ActionToken_models_1.ActionToken.create(data);
+        }
+        catch (e) {
+            throw new api_error_1.ApiError(e.message, 401);
+        }
+    }
     async findOne(params) {
         try {
             return await Token_models_1.Token.findOne(params);
+        }
+        catch (e) {
+            throw new api_error_1.ApiError("error findOne", e.status);
+        }
+    }
+    async findOneActionToken(params) {
+        try {
+            return await ActionToken_models_1.ActionToken.findOne(params);
         }
         catch (e) {
             throw new api_error_1.ApiError("error findOne", e.status);

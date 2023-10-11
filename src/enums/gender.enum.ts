@@ -9,3 +9,8 @@ export enum EUserStatus {
   inactive = "inactive",
   deleted = "deleted",
 }
+
+export enum EActionTokenType {
+  activate = "activate",
+  forgotPassword = "forgot",
+}

@@ -3,7 +3,6 @@ import { NextFunction, Request, Response } from "express";
 
 import { authService } from "../services/auth.service";
 import {
-  IToken,
   ITokenActivate,
   ITokenPayload,
   ITokensPair,
@@ -30,10 +29,10 @@ class AuthController {
     req: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<Response<IToken>> {
+  ): Promise<Response<IUser>> {
     try {
-      const user = req.res.locals.user;
-      const result = await authService.activate(user);
+      const payload = req.res.locals.payload;
+      const result = await authService.activate(payload);
       return res.status(201).json(result);
     } catch (error) {
       next(error);
@@ -92,8 +91,28 @@ class AuthController {
     next: NextFunction,
   ): Promise<any> {
     try {
-      const user = req.res.locals.user;
-      await authService.forgot(user as IUser);
+      //в мідлварці перевірили користувача по емейлу і отримуємо його тут
+      const user = req.res.locals.user; //перевірено юзер приходить
+      const tokenForgot = await authService.forgot(user as IUser);
+      return res.status(201).json(tokenForgot);
+    } catch (e) {
+      next(e);
+    }
+  }
+  //
+  public async setForgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<any> {
+    try {
+      const payload = req.res.locals.payload;
+      const result = await authService.setForgotPassword(
+        req.params.token as string,
+        req.body.newPassword,
+        payload,
+      );
+      res.status(201).json(result);
     } catch (e) {
       next(e);
     }

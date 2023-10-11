@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRepository = void 0;
+const api_error_1 = require("../errors/api.error");
 const User_model_1 = require("../models/User.model");
 class UserRepository {
     async getAll() {
@@ -8,7 +9,13 @@ class UserRepository {
         return users;
     }
     async createUser(data) {
-        return await User_model_1.User.create(data);
+        try {
+            console.log("createUserReposit", data);
+            return await User_model_1.User.create(data);
+        }
+        catch (e) {
+            throw new api_error_1.ApiError("userCreate error", 401);
+        }
     }
     async updateOneById(userId, dto) {
         return await User_model_1.User.findByIdAndUpdate(userId, dto, {

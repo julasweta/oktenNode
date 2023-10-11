@@ -9,4 +9,8 @@ export const templates = {
     templateName: "forgot-password",
     subject: "Do not worry, we control your password",
   },
+  [EEmailAction.ACTIVATE]: {
+    templateName: "activate",
+    subject: "Статус - активовано",
+  },
 };

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authService = void 0;
+const config_1 = require("../configs/config");
 const email_action_enum_1 = require("../enums/email.action.enum");
 const gender_enum_1 = require("../enums/gender.enum");
 const api_error_1 = require("../errors/api.error");
@@ -12,29 +13,36 @@ const token_services_1 = require("./token.services");
 class AuthService {
     async register(data) {
         const hashedPassword = await password_service_1.passwordService.hash(data.password);
-        const { accessToken } = token_services_1.tokenService.generateActivateToken({
-            _userId: data.id,
-            name: data.name,
-        });
-        await email_services_1.emailService.sendMail(data.email, email_action_enum_1.EEmailAction.REGISTER, {
-            name: data.name,
-            activаteToken: accessToken,
-        });
-        await user_repository_1.userRepository.createUser({
+        const user = await user_repository_1.userRepository.createUser({
             ...data,
             password: hashedPassword,
             status: gender_enum_1.EUserStatus.inactive,
         });
-        return { accessToken };
+        const { accessToken } = token_services_1.tokenService.generateActivateToken({
+            _userId: user._id,
+        }, config_1.configs.JWT_ACTIVATE_SECRET);
+        return await token_repository_1.tokenRepository.createActivateToken({
+            token: accessToken,
+            type: gender_enum_1.EActionTokenType.activate,
+            _userId: user._id,
+        });
     }
-    async activate(data) {
-        await email_services_1.emailService.sendMail(data.email, email_action_enum_1.EEmailAction.REGISTER, {
-            name: data.name,
-        });
-        return await user_repository_1.userRepository.updateOneById(data._id, {
-            ...data,
-            status: gender_enum_1.EUserStatus.active,
-        });
+    async activate(payload) {
+        try {
+            const user = await user_repository_1.userRepository.getOneByParams({
+                _id: payload._userId,
+            });
+            await email_services_1.emailService.sendMail(user.email, email_action_enum_1.EEmailAction.ACTIVATE, {
+                name: user.name,
+            });
+            const user2 = await user_repository_1.userRepository.updateOneById(user.id, {
+                status: gender_enum_1.EUserStatus.active,
+            });
+            return user2;
+        }
+        catch (e) {
+            throw new api_error_1.ApiError("ActivateService", 401);
+        }
     }
     async login(data) {
         const user = await user_repository_1.userRepository.getOneByParams({ email: data.email });
@@ -84,14 +92,39 @@ class AuthService {
     }
     async forgot(user) {
         try {
-            const tokens = token_services_1.tokenService.generateTokenPair({
+            const { accessToken } = token_services_1.tokenService.generateActivateToken({
+                _userId: user._id,
+            }, config_1.configs.JWT_FORGOT_SECRET);
+            const tokenForgot = await token_repository_1.tokenRepository.createActivateToken({
+                token: accessToken,
+                type: gender_enum_1.EActionTokenType.forgotPassword,
                 _userId: user._id,
             });
-            const access = tokens.accessToken;
-            console.log(access);
             email_services_1.emailService.sendMail(user.email, email_action_enum_1.EEmailAction.FORGOT_PASSWORD, {
-                name: "forgot you",
+                accessToken,
             });
+            return tokenForgot;
+        }
+        catch (e) {
+            throw new api_error_1.ApiError(e.message, e.status);
+        }
+    }
+    async setForgotPassword(actionToken, newPassword, payload) {
+        try {
+            const entity = await token_repository_1.tokenRepository.findOneActionToken({
+                token: actionToken,
+            });
+            if (!entity) {
+                throw new api_error_1.ApiError("Not valid token", 400);
+            }
+            const newHashedPassword = await password_service_1.passwordService.hash(newPassword);
+            await Promise.all([
+                user_repository_1.userRepository.updateOneById(payload._userId, {
+                    password: newHashedPassword,
+                }),
+                token_repository_1.tokenRepository.deleteOne({ token: actionToken }),
+            ]);
+            return "password update";
         }
         catch (e) {
             throw new api_error_1.ApiError(e.message, e.status);

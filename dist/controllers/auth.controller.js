@@ -14,8 +14,8 @@ class AuthController {
     }
     async activate(req, res, next) {
         try {
-            const user = req.res.locals.user;
-            const result = await auth_service_1.authService.activate(user);
+            const payload = req.res.locals.payload;
+            const result = await auth_service_1.authService.activate(payload);
             return res.status(201).json(result);
         }
         catch (error) {
@@ -57,7 +57,18 @@ class AuthController {
     async forgot(req, res, next) {
         try {
             const user = req.res.locals.user;
-            await auth_service_1.authService.forgot(user);
+            const tokenForgot = await auth_service_1.authService.forgot(user);
+            return res.status(201).json(tokenForgot);
+        }
+        catch (e) {
+            next(e);
+        }
+    }
+    async setForgotPassword(req, res, next) {
+        try {
+            const payload = req.res.locals.payload;
+            const result = await auth_service_1.authService.setForgotPassword(req.params.token, req.body.newPassword, payload);
+            res.status(201).json(result);
         }
         catch (e) {
             next(e);

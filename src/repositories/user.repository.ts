@@ -1,5 +1,6 @@
 import { FilterQuery } from "mongoose";
 
+import { ApiError } from "../errors/api.error";
 import { User } from "../models/User.model";
 import { IUser } from "../types/user.type";
 
@@ -11,7 +12,12 @@ class UserRepository {
   }
 
   public async createUser(data: Partial<IUser>): Promise<IUser> {
-    return await User.create(data);
+    try {
+      console.log("createUserReposit", data);
+      return await User.create(data);
+    } catch (e) {
+      throw new ApiError("userCreate error", 401);
+    }
   }
 
   public async updateOneById(
