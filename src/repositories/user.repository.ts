@@ -40,6 +40,10 @@ class UserRepository {
   public async getOneByParams(email: FilterQuery<IUser>): Promise<any> {
     return await User.findOne(email);
   }
+
+  public async getAllByParams(createdAt: any): Promise<any> {
+    return await User.find(createdAt);
+  }
 }
 
 export const userRepository = new UserRepository();

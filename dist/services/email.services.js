@@ -62,7 +62,14 @@ class EmailService {
             template: email_constant_1.templates[emailAction].templateName,
             context,
         };
-        return await this.transporter.sendMail(mailOptions);
+        return this.transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Помилка відправки листа:", error);
+            }
+            else {
+                console.log("Лист відправлено:", info.response);
+            }
+        });
     }
 }
 exports.emailService = new EmailService();

@@ -31,5 +31,8 @@ class UserRepository {
     async getOneByParams(email) {
         return await User_model_1.User.findOne(email);
     }
+    async getAllByParams(createdAt) {
+        return await User_model_1.User.find(createdAt);
+    }
 }
 exports.userRepository = new UserRepository();
