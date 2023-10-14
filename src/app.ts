@@ -27,11 +27,9 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.json(error.message);
 });
 
-const PORT = 5001;
-
-app.listen(PORT, async () => {
+app.listen(configs.PORT, async () => {
   await mongoose.connect(configs.DB_URI);
   cronRunner();
-  console.log(`Server has successfully started on PORT ${PORT}`);
+  console.log(`Server has successfully started on PORT ${configs.PORT}`);
 });
 //twilio - для смс
