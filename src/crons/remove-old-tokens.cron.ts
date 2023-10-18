@@ -7,21 +7,18 @@ import { ApiError } from "../errors/api.error";
 import { tokenRepository } from "../repositories/token.repository";
 //https://github.com/iamkun/dayjs/blob/dev/docs/ru/README-ru.md
 
-
 dayjs.extend(utc);
 
 const tokensRemover = async function () {
   try {
     const previousMonth = dayjs().utc().subtract(1, "d");
-  
+
     await tokenRepository.deleteAll({
       createdAt: { $lte: previousMonth },
     });
   } catch (e) {
     throw new ApiError(e.message, e.status);
   }
-
-
 
   // lte = less than equal
   // gte = greater than equal

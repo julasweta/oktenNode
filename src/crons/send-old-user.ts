@@ -7,8 +7,7 @@ import { EEmailAction } from "../enums/email.action.enum";
 import { ApiError } from "../errors/api.error";
 import { userRepository } from "../repositories/user.repository";
 import { emailService } from "../services/email.services";
-import { IUser } from '../types/user.type';
-
+import { IUser } from "../types/user.type";
 
 dayjs.extend(utc);
 
@@ -17,21 +16,20 @@ const tokensRemover = async function () {
     const previousMonth = dayjs().utc().subtract(2, "d");
 
     const users = await userRepository.getAllByParams({
-
-      createdAt: { $lte: previousMonth }
+      createdAt: { $lte: previousMonth },
     });
-    const message = 'Ваш акаунт давно не використовувався. Будь ласка, увійдіть для активного використання.';
+    const message =
+      "Ваш акаунт давно не використовувався. Будь ласка, увійдіть для активного використання.";
 
     await users.map((user: IUser) => {
       emailService.sendMail(user.email, EEmailAction.REGISTER, {
         name: user.name,
-        message: message
+        message: message,
       });
     });
   } catch (e) {
     throw new ApiError(e.message, e.status);
   }
-
 };
 
-export const sendOldUser = new CronJob('0 0 */2 * * *', tokensRemover);
+export const sendOldUser = new CronJob("0 0 */10 * * *", tokensRemover);

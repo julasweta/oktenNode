@@ -19,8 +19,10 @@ app.use("/users", UserRouter);
 app.use("/auth", AuthRouter);
 
 const options = {
-  explorer: true
+  explorer: true,
 };
+
+//періодичність виконання якихось дій
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerJson, options));
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {

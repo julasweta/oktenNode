@@ -20,6 +20,19 @@ class UserController {
     }
   }
 
+  public async getWithPagination(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response<IUser[]>> {
+    try {
+      const users = await userService.getAllWithPagination(req.query);
+      return res.json(users);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public async createUser(
     req: Request,
     res: Response,

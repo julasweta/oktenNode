@@ -9,16 +9,10 @@
     "version": "v2"
   },
   "host": "localhost:5001",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "basePath": "/",
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "securityDefinitions": {
     "Bearer": {
       "type": "apiKey",
@@ -29,9 +23,7 @@
   "paths": {
     "/users": {
       "get": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "description": "get all users",
         "summary": "get all users summary",
         "responses": {
@@ -45,27 +37,26 @@
       }
     }
   },
-    "definitions": {
-      "User": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "age": {
-            "type": "integer",
-            "default": 5
-          },
-          "password": {
-            "type": "string"
-          },
-          "genders": {
-            "type": "string"
-          }
+  "definitions": {
+    "User": {
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer",
+          "default": 5
+        },
+        "password": {
+          "type": "string"
+        },
+        "genders": {
+          "type": "string"
         }
       }
     }
-    
+  }
 }
