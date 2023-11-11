@@ -5,6 +5,7 @@ import { userController } from "../controllers/user.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { commonMiddleware } from "../middlewares/common.middleware";
 import { UserValidator } from "../validators/user.validator";
+import { fileMiddleware } from "../middlewares/files.middleware";
 
 const UserRouter = Router();
 
@@ -21,6 +22,12 @@ UserRouter.delete(
   "/:id",
   commonMiddleware.isUser("id"),
   userController.deleteId,
+);
+
+UserRouter.post(
+  "/:id/avatar",
+  fileMiddleware.isAvatarValid,
+  userController.uploadAvatar,
 );
 
 export { UserRouter };

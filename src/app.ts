@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable prettier/prettier */
 import express, { NextFunction, Request, Response } from "express";
+import fileUpload from "express-fileupload";
 import mongoose from "mongoose";
 import * as swaggerUi from "swagger-ui-express";
 
@@ -14,6 +15,7 @@ import * as swaggerJson from "./utils/swagger.json";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 
 app.use("/users", UserRouter);
 app.use("/auth", AuthRouter);

@@ -3,6 +3,7 @@ import { model, Schema } from "mongoose";
 import { EGenders, EUserStatus } from "../enums/gender.enum";
 import { IUser } from "../types/user.type";
 
+//https://mongoosejs.com/docs/schematypes.html
 // Схема користувача
 const userSchema = new Schema(
   {
@@ -28,12 +29,16 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
+      select: false,
     },
     status: {
       type: String,
       enum: EUserStatus,
       required: true,
       default: EUserStatus.inactive,
+    },
+    avatar: {
+      type: String,
     },
   },
   {

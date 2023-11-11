@@ -11,21 +11,23 @@ dayjs.extend(utc);
 
 const checkTokens = async function () {
   try {
-    const data = dayjs().utc().subtract(1, "d");
-    const users = await User.aggregate([{
-      $lookup: {
-        from: 'tokens',
-        localField: '_id',
-        foreignField: '_userId',
-        as: 'result'
-      }
-    },
+   // const data = dayjs().utc().subtract(1, "d");
+    await User.aggregate([
+      {
+        $lookup: {
+          from: "tokens",
+          localField: "_id",
+          foreignField: "_userId",
+          as: "result",
+        },
+      },
       {
         $addFields: {
-          result: { $ne: ['$result', []] }
-        }
-      }])
-console.log(users);
+          result: { $ne: ["$result", []] },
+        },
+      },
+    ]);
+
   } catch (e) {
     throw new ApiError(e.message, e.status);
   }

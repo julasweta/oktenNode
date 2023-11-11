@@ -32,4 +32,4 @@ const tokensRemover = async function () {
   }
 };
 
-export const sendOldUser = new CronJob("0 0 */10 * * *", tokensRemover);
+export const sendOldUser = new CronJob("0 0 */10 */5 * *", tokensRemover);

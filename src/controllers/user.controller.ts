@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from "express";
+import { UploadedFile } from "express-fileupload";
 
 import { userService } from "../services/user.service";
+import { EFileTypes } from "../types/file.type";
 import { IUser } from "../types/user.type";
+import { userPresenter } from "../presenters/user.presenter";
 
 // Controller  тільки вказує хто буде обробляти запит, а сам запит передає Services
 // також тут передаються дані для запиту і відправляється тут response
@@ -74,6 +77,14 @@ class UserController {
     } catch (error) {
       next(error);
     }
+  }
+  public async uploadAvatar(req: Request, res: Response, next: NextFunction) {
+    const avatar = req.files.avatar as UploadedFile;
+    const { id } = req.params;
+    const type = EFileTypes.User;
+    const user = await userService.uploadAvatar(avatar, type, id);
+    const response = userPresenter.present(user);
+    return res.json(response);
   }
 }
 
